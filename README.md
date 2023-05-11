@@ -14,10 +14,10 @@ OPENAI_API_KEY=<your key here>
 
 Then, you can hit the healthcheck to verify that it's running:
 
-`http://localhost:2020/healthcheck`
+`GET http://localhost:2020/healthcheck`
 
 ## APIs
 
 Once running, you can hit the magic APIs locally from here:
 
-`localhost:2020/api/magic/...`
+`POST localhost:2020/api/magic/...`
