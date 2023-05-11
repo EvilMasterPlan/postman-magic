@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+const magic = require('../magic/magic.js');
 const common = require('../util/common.js');
 
 // =============================================
@@ -9,6 +10,7 @@ const common = require('../util/common.js');
 
 router.post('/magic/curl/v1', [
 	common.body(['query']),
+	magic.curl_v1,
 	common.return
 ]);
 
