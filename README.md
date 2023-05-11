@@ -1,7 +1,11 @@
 ## Clean Installation
 
-* `npm install` (from the project base folder) to install server dependencies.
-* I recommend using node v17.4.x or higher (preferably using `nvm` to avoid conflicts with other versions on your local machine)
+* `npm install` (from the project base folder) to install server dependencies. I recommend node v17.4.x or higher
+* Add your OpenAPI key to the `.env` file:
+
+```
+OPENAI_API_KEY=<your key here>
+```
 
 ## Running Locally
 
