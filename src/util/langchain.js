@@ -1,5 +1,6 @@
 const { OpenAI } = require("langchain/llms/openai");
 const { LLMChain } = require("langchain/chains");
+const { PromptTemplate } = require("langchain/prompts");
 
 /*
 	temperature ranges from [ 0.0 - 1.0 ]
@@ -7,6 +8,15 @@ const { LLMChain } = require("langchain/chains");
 */
 const defaultTemperature = 0.5;
 const model = new OpenAI({ temperature: defaultTemperature });
+
+const promptLibrary = {
+	'searchQuery': {
+		'v1': {
+			template: `A user has the following objective: "{objective}"\n write a query to search an API catalog in as few words as possible. Respond with the query and nothing else. Use present tense. Do NOT include the word "API" in the query.`,
+			variables: ['objective'],
+		},
+	}
+}
 
 const postProcessSuggestedQuery = (suggestedQuery) => {
 	let query = suggestedQuery || '';
@@ -24,3 +34,11 @@ module.exports.callModel = async(prompt, parameters) => {
 	const { text: responseText } = response;
 	return postProcessSuggestedQuery(responseText);
 };
+
+module.exports.getPrompt = (key, version = 'v1') => {
+	const promptInfo = (promptLibrary[key] || {})[version];
+	if (promptInfo) {
+		const { template, variables } = promptInfo;
+		return new PromptTemplate({ template, inputVariables: variables })
+	}
+}
