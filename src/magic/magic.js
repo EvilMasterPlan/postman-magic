@@ -10,15 +10,24 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 
 	const { query: userQuery } = req.body;
 
-	const prompt = langchain.getPrompt('searchQuery', 'v1');
-	const suggestedQuery = await langchain.callModel(prompt, {
-		objective: userQuery,
-	});
+	// Given a user query, derive a model-suggested API search query
+	let suggestedQuery = await langchain.callModel(langchain.getPrompt('searchQuery'), {objective: userQuery});
+	suggestedQuery = langchain.postProcessSuggestedQuery(suggestedQuery);
 
-	// const searchResults = await postman.searchPublicRequests(userQuery);
+	// Fetch the top search results from Postman's Public API Network
+	const searchResults = await postman.searchPublicRequests(suggestedQuery);
+	const searchResultsMarkdown = langchain.preProcessSearchResults(searchResults);
+
+	// Pass the original query and results to the LLM to rank for us
+	const ranks = await langchain.callModel(langchain.getPrompt('rankQuery'), {userQuery, searchResultsMarkdown});
+
+	// TODO: sort by LLM rank
+	// TODO: convert best ranked result to cURL command
 
 	req.result = {
-		searchQuery: suggestedQuery
+		suggestedQuery,
+		searchResults,
+		ranks,
 	};
 
 	next(err);
