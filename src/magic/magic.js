@@ -56,6 +56,8 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 	// Not sure the best programmatic way to do this, so we scrape if from the request page
 	const command = await scraper.scrapeCommand(publisherHandle, firstWorkspaceSlug, requestID);
 
+	console.log(`cURL:\n${command}`);
+
 	req.result = {
 		curl: command,
 		phases: {
