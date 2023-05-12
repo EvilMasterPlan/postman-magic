@@ -1,3 +1,7 @@
+/*
+   This is just some express middleware I find helpful. It's not relevant to the magic part.
+*/
+
 // verify properties of the request body
 module.exports.body = (requiredFields) => {
 	let requiredFieldList = [];
