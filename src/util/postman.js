@@ -7,7 +7,7 @@ const parseSearchResultsResponse = (response) => {
 		const { id: requestID, method, name, url, publisherName, workspaces } = doc;
 		
 		// Let's pull out the most relevant information we can get to pass down the line
-		return { requestID, name, publisherName, score, method, url };
+		return { requestID, name, publisherName, score, method };
 	});
 };
 
