@@ -57,14 +57,15 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 	const command = await scraper.scrapeCommand(publisherHandle, firstWorkspaceSlug, requestID);
 
 	req.result = {
+		curl: command,
 		phases: {
 			suggestedQuery,
 			searchResults,
 			scoreText,
 			scores,
 			enrichedSearchResults,
+			topMagicResult,
 		},
-		curl: command,
 	};
 
 	next(err);
