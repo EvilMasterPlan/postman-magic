@@ -18,6 +18,16 @@ Then, you can hit the healthcheck to verify that it's running:
 
 ## APIs
 
-Once running, you can hit the magic APIs locally from here:
+Once running, you can hit the magic API locally from here:
 
-`POST localhost:2020/api/magic/...`
+`POST localhost:2020/api/magic/curl/v1`
+
+```
+{
+	query: "Write me an API to schedule a zoom meeting"
+}
+```
+
+## Notes
+
+* This API involves multiple chained LLM calls, and so may take a few seconds to complete! Please be patient.

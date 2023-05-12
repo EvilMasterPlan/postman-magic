@@ -18,16 +18,7 @@ const promptLibrary = {
 	},
 	'rankQuery': {
 		'v1': {
-			template: `You will receive a markdown list of APIs and a user's search query. Return a single list in a markdown (with no other text) that assigns a "relevance" score to each API from 0.0 to 1.0 based on how relevant the result is to the query.
-
-query: "{userQuery}"
-
-APIs:
-
-{searchResultsMarkdown}
-
-
-Now evaluate their relevance to the query and return only the list of scores assigned to requestIDs.  Return your list in a single block with each ranking on its own line with no explanation or other text.`,
+			template: `You will receive a markdown list of APIs and a user's search query. Return a single list in a markdown (with no other text) that assigns a "relevance" score to each API from 0.0 to 1.0 based on how relevant the result is to the query.\n\nquery: "{userQuery}"\n\nAPIs:\n\n{searchResultsMarkdown}\n\n\nNow evaluate their relevance to the query and return only the list of scores assigned to requestIDs.  Return your list in a single block with each ranking on its own line with no explanation or other text.`,
 			variables: ['userQuery', 'searchResultsMarkdown']
 		}
 	}
