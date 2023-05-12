@@ -13,24 +13,28 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 
 	const { query: userQuery } = req.body;
 
+	console.log('PHASE 1: LLM query optimization...');
+
 	// PHASE 1
 	// Given a user query, derive a model-suggested API search query
-	// let suggestedQuery = await model.callModel(prompts.getPrompt('searchQuery'), {objective: userQuery});
-	// suggestedQuery = processing.postProcessSuggestedQuery(suggestedQuery);
+	let suggestedQuery = await model.callModel(prompts.getPrompt('searchQuery'), {objective: userQuery});
+	suggestedQuery = processing.postProcessSuggestedQuery(suggestedQuery);
 
-	const suggestedQuery = 'Schedule Zoom Meeting';
+	console.log('PHASE 2: Search Postman Public API Network...');
 
 	// PHASE 2
 	// Fetch the top search results from Postman's Public API Network
 	const searchResults = await postman.searchPublicRequests(suggestedQuery);
 	const searchResultsMarkdown = processing.preProcessSearchResults(searchResults);
 
+	console.log('PHASE 3: LLM scoring optimization...');
+
 	// PHASE 3
 	// Pass the original query and results to the LLM to score for us
-	// let scoreText = await model.callModel(prompts.getPrompt('rankQuery'), {userQuery, searchResultsMarkdown});
-	// scores = processing.postProcessScores(scoreText);
-	scoreText = '';
-	scores = searchResults.map(_ => 0.0);
+	let scoreText = await model.callModel(prompts.getPrompt('rankQuery'), {userQuery, searchResultsMarkdown});
+	scores = processing.postProcessScores(scoreText);
+
+	console.log('PHASE 4: Rank by magic score...');
 
 	// PHASE 4
 	// Enrich the results with the dynamic LLM scoring and select the best
@@ -42,23 +46,20 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 	});
 	enrichedSearchResults.sort((a, b) => b.magicScore - a.magicScore);
 
-	const topMagicResult = enrichedSearchResults[0];
-	const { requestID } = topMagicResult;
+	console.log('PHASE 5: Convert top result to cURL command...');
 
 	// PHASE 5
 	// Convert the best scored result to a cURL command
+	const topMagicResult = enrichedSearchResults[0];
+	const { requestID, publisherHandle, workspaceSlugs } = topMagicResult;
+	const firstWorkspaceSlug = workspaceSlugs[0];
 	// Not sure the best programmatic way to do this, so we scrape if from the request page
-
-	const organization = 'snowflake';
-    const workspace = 'snowflake-public-workspace';
-    const requestID = '14678294-dc3941c2-945a-4055-b22c-578afdf043ff';
-	const command = await scraper.scrapeCommand(organization, workspace, requestID);
+	const command = await scraper.scrapeCommand(publisherHandle, firstWorkspaceSlug, requestID);
 
 	req.result = {
 		phases: {
 			suggestedQuery,
 			searchResults,
-			searchResultsMarkdown,
 			scoreText,
 			scores,
 			enrichedSearchResults,
