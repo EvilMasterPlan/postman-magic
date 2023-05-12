@@ -6,6 +6,7 @@ const postman = require('../util/postman');
 const model = require('../util/model');
 const prompts = require('../util/prompts');
 const processing = require('../util/processing');
+const scraper = require('../util/scraper');
 
 module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 	let err;
@@ -26,8 +27,10 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 
 	// PHASE 3
 	// Pass the original query and results to the LLM to score for us
-	let scoreText = await model.callModel(prompts.getPrompt('rankQuery'), {userQuery, searchResultsMarkdown});
-	scores = processing.postProcessScores(scoreText);
+	// let scoreText = await model.callModel(prompts.getPrompt('rankQuery'), {userQuery, searchResultsMarkdown});
+	// scores = processing.postProcessScores(scoreText);
+	scoreText = '';
+	scores = searchResults.map(_ => 0.0);
 
 	// PHASE 4
 	// Enrich the results with the dynamic LLM scoring and select the best
@@ -43,8 +46,13 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 	const { requestID } = topMagicResult;
 
 	// PHASE 5
-	// TODO: Convert the best scored result to a cURL command
-	const curl = ""
+	// Convert the best scored result to a cURL command
+	// Not sure the best programmatic way to do this, so we scrape if from the request page
+
+	const organization = 'snowflake';
+    const workspace = 'snowflake-public-workspace';
+    const requestID = '14678294-dc3941c2-945a-4055-b22c-578afdf043ff';
+	const command = await scraper.scrapeCommand(organization, workspace, requestID);
 
 	req.result = {
 		phases: {
@@ -55,7 +63,7 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 			scores,
 			enrichedSearchResults,
 		},
-		curl,
+		curl: command,
 	};
 
 	next(err);
