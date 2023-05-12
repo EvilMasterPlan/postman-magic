@@ -8,9 +8,19 @@ const { LLMChain } = require("langchain/chains");
 const defaultTemperature = 0.5;
 const model = new OpenAI({ temperature: defaultTemperature });
 
+const postProcessSuggestedQuery = (suggestedQuery) => {
+	let query = suggestedQuery || '';
+	// Remove the newlines ChatGPT occasionally adds to delimit messages
+	query = query.trim();
+	// Remove enclosing single or double quotes ChatGPT may have added
+	query = query.replace(/^(['"])(.*)\1$/, "$2");
+	query = query.trim();
+	return query;
+}
+
 module.exports.callModel = async(prompt, parameters) => {
 	const chain = new LLMChain({ llm: model, prompt });
 	const response = await chain.call(parameters);
 	const { text: responseText } = response;
-	return responseText.trim();
+	return postProcessSuggestedQuery(responseText);
 };

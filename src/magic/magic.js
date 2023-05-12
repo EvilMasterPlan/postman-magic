@@ -15,14 +15,14 @@ module.exports.curl_v1 = asyncHandler(async(req, res, next) => {
 	const template = `A user has the following objective: "{objective}"\n write a query to search an API catalog in as few words as possible. Respond with the query and nothing else. Do NOT include the word "API" in the query.`;
 	const prompt = new PromptTemplate({ template, inputVariables: ["objective"] });
 
-	const response = await langchain.callModel(prompt, {
+	const suggestedQuery = await langchain.callModel(prompt, {
 		objective: userQuery,
 	});
 
 	// const searchResults = await postman.searchPublicRequests(userQuery);
 
 	req.result = {
-		searchQuery: response
+		searchQuery: suggestedQuery
 	};
 
 	next(err);
